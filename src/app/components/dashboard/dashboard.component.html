@@ -1,0 +1,149 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="right">
+                    <div class="my-2">
+                        <button pButton pRipple label="Charger un fichier" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+        </div>
+        <p-dialog  [closable]="false"  [(visible)]="ImportDialog2" [style]="{width: '800px'}" header="Charger un fichier" [modal]="true" styleClass="p-fluid">
+            <ng-template pTemplate="content" >
+                <div class="p-field p-col">
+                    <h5>Fichier</h5>
+                    <div *ngIf="pret==false" class="grid justify-content-center p-2 lg:p-0">
+                        <h5 class="spinner">Veuillez Patienter...</h5>
+                        <p-progressSpinner class="spinner"></p-progressSpinner>
+                    </div>
+                    <div class="p-field p-col">
+                        <input (change)="onUpload($event)" class="form-control form-control-lg" id="formFileLg" type="file">
+                    </div>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <div *ngIf="pret==true">
+                    <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text p-button-danger" (click)="hideDialog()"></button>
+                    <button pButton pRipple label="Afficher" *ngIf="charger==false" disabled icon="pi pi-check" class="p-button-text" (click)="Importer()"></button>
+                    <button pButton pRipple label="Afficher" *ngIf="charger2==true"  icon="pi pi-check" class="p-button-text" (click)="Importer()" ></button>
+                    <button pButton pRipple label="Exporter" *ngIf="charger2==true"  icon="pi pi-check" class="p-button-text" (click)="exportAsXLSX()" ></button>
+                </div>
+            </ng-template>
+
+        </p-dialog>
+        <p-dialog header="Participants" [closable]="false" [resizable]="false" [modal]="true" [maximizable]="true" appendTo="body" [(visible)]="ImportDialog" [style]="{width: '95vw'}" [contentStyle]="{height: '500px'}">
+            <p-table #dt [value]="impor" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Affichage {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="u">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Journal Compte</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                                                <i class="pi pi-search"></i>
+                                                <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                            </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="matricule">Matricule <p-sortIcon field="matricule"></p-sortIcon></th>
+                        <th pSortableColumn="nom">Nom<p-sortIcon field="nom"></p-sortIcon></th>
+                        <th pSortableColumn="prenom">Prenom <p-sortIcon field="prenom"></p-sortIcon></th>
+                        <th pSortableColumn="sexe">Sexe <p-sortIcon field="sexe"></p-sortIcon></th>
+                        <th pSortableColumn="naissance">Date de Naissance <p-sortIcon field="naissance"></p-sortIcon></th>
+                        <th pSortableColumn="statut">Statut <p-sortIcon field="statut"></p-sortIcon></th>
+                        <th pSortableColumn="telephone">Telephone <p-sortIcon field="telephone"></p-sortIcon></th>
+                        <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                        <th pSortableColumn="cin">CIN <p-sortIcon field="cin"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-utilisateurs>
+                    <tr>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Matricule</span>{{utilisateurs.matricule}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Nom</span>{{utilisateurs.nom}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Prenom</span>{{utilisateurs.prenom}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Sexe</span>{{utilisateurs.sexe}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Date de Naissance</span>{{utilisateurs.Naissance}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Statut</span>{{utilisateurs.statut}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Telephone</span>{{utilisateurs.telephone}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">Email</span>{{utilisateurs.email}}</td>
+                        <td style="width:14%; min-width:10rem;"><span class="p-column-title">CIN</span>{{utilisateurs.CIN}}</td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="openNew2(utilisateurs)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" type="button" label="Fermer" class="p-button-danger p-button-text" (click)="this.ImportDialog = false;"></button>
+                <button pButton pRipple label="Exporter" icon="pi pi-check" class="p-button-text"  (click)="exportAsXLSX()"></button>
+            </ng-template>
+        </p-dialog>
+        <p-dialog [(visible)]="ModifDialog" [style]="{width: '700px'}" header="Modification"
+                  [modal]="true" class="p-fluid">
+            <h6 align="right"><span style="color: red"> *</span> Champs Obligatoires</h6>
+            <ng-template pTemplate="content">
+                <br>
+                <div class="p-formgrid grid">
+                    <div class="field col">
+                        <label for="matricule2">Matricule <span style="color: red"> *</span></label>
+                        <p-inputMask mask="999-999" [(ngModel)]="utilisateurs.matricule" id="matricule2" [ngClass]="{'ng-invalid ng-dirty' : submitted && !utilisateurs.matricule}" required></p-inputMask>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !utilisateurs.matricule">Le matricule est obligatoire.</small>
+                    </div>
+                    <div class="field col">
+                        <label for="prenom2">Prenom <span style="color: red"> *</span></label>
+                        <input type="text" pInputText id="prenom2" [(ngModel)]="utilisateurs.prenom" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !utilisateurs.prenom}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !utilisateurs.prenom">Le prenom est obligatoire.</small>
+                    </div>
+                    <div class="field col">
+                        <label for="nom2">Nom <span style="color: red"> *</span></label>
+                        <input type="text" pInputText id="nom2" [(ngModel)]="utilisateurs.nom" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !utilisateurs.nom}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !utilisateurs.nom">Le nom est obligatoire.</small>
+                    </div>
+                </div>
+                <div class="p-formgrid grid">
+                    <div class="field col">
+                        <label for="sexe">Sexe <span style="color: red"> *</span></label>
+                        <p-selectButton [options]="stateOptions" id="sexe" [(ngModel)]="utilisateurs.sexe" optionLabel="label" optionValue="value" [ngClass]="{'ng-invalid ng-dirty' : submitted && !utilisateurs.sexe}"></p-selectButton>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !utilisateurs.sexe">Le sexe doit etre obligatoire.</small>
+                    </div>
+                    <div class="field col">
+                        <label for="naissance">Date de Naissance <span style="color: red"> *</span></label>
+                        <p-calendar inputId="basic" appendTo="body" id="naissance" [(ngModel)]="datet" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !utilisateurs.Naissance}"></p-calendar>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !utilisateurs.Naissance">La date naissance est obligatoire.</small>
+                    </div>
+                    <div class="field col">
+                        <label for="statut">Statut <span style="color: red"> *</span></label>
+                        <p-selectButton [options]="paymentOptions"optionLabel="name" optionValue="value" id="statut" [(ngModel)]="utilisateurs.statut" required [ngClass]="{'ng-invalid ng-dirty' : submitted && !utilisateurs.statut}"></p-selectButton>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !utilisateurs.statut">Le statut est obligatoire.</small>
+                    </div>
+                </div>
+                <div class="p-formgrid grid">
+                    <div class="field col">
+                        <label for="telephone2">Téléphone</label>
+                        <p-inputMask mask="99-999-99-99" id="telephone2" [(ngModel)]="utilisateurs.telephone" ></p-inputMask>
+                    </div>
+                    <div class="field col">
+                        <label for="email2">Email</label>
+                        <input type="text" pInputText id="email2" [(ngModel)]="utilisateurs.email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"  />
+                    </div>
+                    <div class="field col">
+                        <label for="cin2">Piece d'Identité</label>
+                        <p-inputMask mask="9999-9999-99999" id="cin2" [(ngModel)]="utilisateurs.CIN" ></p-inputMask>
+                    </div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Annuler" icon="pi pi-times" class="p-button-text"
+                        (click)="this.ModifDialog = false;"></button>
+                <button pButton pRipple label="Modifier"
+                        [disabled]="!utilisateurs.matricule || !utilisateurs.prenom || !utilisateurs.nom  || !utilisateurs.statut  || !utilisateurs.sexe  || !utilisateurs.Naissance "
+                        icon="pi pi-check" class="p-button-text" (click)="Modifier()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
